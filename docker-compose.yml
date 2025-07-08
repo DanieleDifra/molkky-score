@@ -1,0 +1,44 @@
+services:
+  web:
+    build:
+      context: .  
+      dockerfile: Dockerfile
+    container_name: molkky_app
+    image: molkky/core
+    env_file: .env
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "8013:8000"
+    command: ["/app/entrypoint.sh"]
+    volumes:
+      - static_volume:/app/static
+      - .:/app
+    networks:
+      - molkky_net
+
+  db:
+    image: postgres:12.2
+    container_name: molkky_postgres
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - molkky_net
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:alpine
+    container_name: molkky_redis
+    networks:
+      - molkky_net
+
+volumes:
+  postgres_data: {}
+  static_volume: {}
+  
+networks:
+  molkky_net:
+    driver: bridge
